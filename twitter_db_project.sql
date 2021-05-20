@@ -7,64 +7,64 @@ USE TwitterDB;
 -- create the users table
 
 CREATE TABLE users (
-	user_id				INT				PRIMARY KEY 	AUTO_INCREMENT,
+	user_id				INT			PRIMARY KEY 		AUTO_INCREMENT,
 	username			VARCHAR(45)		NOT NULL		UNIQUE,
 	email				VARCHAR(45)		NOT NULL,
-    password_hash		BINARY(64)		NOT NULL,
-    created_at			DATETIME		NOT NULL		DEFAULT CURRENT_TIMESTAMP
+    	password_hash			BINARY(64)		NOT NULL,
+    	created_at			DATETIME		NOT NULL		DEFAULT CURRENT_TIMESTAMP
    );
 
 
 -- create the user profiles table
 
 CREATE TABLE profiles (
-	profile_id			INT 			PRIMARY KEY 	AUTO_INCREMENT,
-	user_id				INT				NOT NULL		UNIQUE,
+	profile_id			INT 			PRIMARY KEY 		AUTO_INCREMENT,
+	user_id				INT			NOT NULL		UNIQUE,
 	screen_name			VARCHAR(45)		NOT NULL,
-    profile_picture		BINARY,
-	bio					VARCHAR(100),
-    total_following		INT 			NOT NULL 		DEFAULT 0,
-    total_followers		INT 			NOT NULL 		DEFAULT 0,
+    	profile_picture			BINARY,
+	bio				VARCHAR(100),
+    	total_following			INT 			NOT NULL 		DEFAULT 0,
+   	total_followers			INT 			NOT NULL 		DEFAULT 0,
     
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    	FOREIGN KEY (user_id) REFERENCES users(user_id)
    );
 
 
 -- create the tweets table
 
 CREATE TABLE tweets (
-	tweet_id			INT 			PRIMARY KEY AUTO_INCREMENT,
-	user_id				INT				NOT NULL,
-	tweet_content		VARCHAR(255)	NOT NULL,
-    created_at			DATETIME		NOT NULL		DEFAULT CURRENT_TIMESTAMP,
+	tweet_id			INT 			PRIMARY KEY 		AUTO_INCREMENT,
+	user_id				INT			NOT NULL,
+	tweet_content			VARCHAR(255)		NOT NULL,
+    	created_at			DATETIME		NOT NULL		DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    	FOREIGN KEY (user_id) REFERENCES users(user_id)
    );
 
 
 /* create the table that stores 
 	the users and likes relation */
     
-   CREATE TABLE tweets_likes (
+CREATE TABLE tweets_likes (
 	tweet_id			INT 			NOT NULL,
-	user_id				INT				NOT NULL,
-    
-    PRIMARY KEY (tweet_id, user_id),
-    FOREIGN KEY (tweet_id) REFERENCES tweets(tweet_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
-   );
+	user_id				INT			NOT NULL,
+
+	PRIMARY KEY (tweet_id, user_id),
+	FOREIGN KEY (tweet_id) REFERENCES tweets(tweet_id),
+	FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
    
 /* create the table that stores 
 	the following relation */
     
-   CREATE TABLE users_followers (
-	user_id				INT				NOT NULL,
-    follower_id			INT 			NOT NULL,
-    
-    PRIMARY KEY (user_id, follower_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (follower_id) REFERENCES users(user_id)
-   );
+CREATE TABLE users_followers (
+	user_id				INT			NOT NULL,
+	follower_id			INT 			NOT NULL,
+
+	PRIMARY KEY (user_id, follower_id),
+	FOREIGN KEY (user_id) REFERENCES users(user_id),
+	FOREIGN KEY (follower_id) REFERENCES users(user_id)
+);
 
 
 /* a stored procedure that takes in new user info
@@ -73,23 +73,23 @@ CREATE TABLE tweets (
 DELIMITER //
 CREATE PROCEDURE create_account(
 	username 			VARCHAR(45),
-    email				VARCHAR(45),
-    password			VARCHAR(45),
-    profile_name		VARCHAR(45),
-    profile_picture		BINARY, 
-    bio					VARCHAR(100)
+    	email				VARCHAR(45),
+    	password			VARCHAR(45),
+    	profile_name			VARCHAR(45),
+    	profile_picture			BINARY, 
+    	bio				VARCHAR(100)
     )
     
 BEGIN 
 	DECLARE new_user_id INT;
     
 	INSERT INTO users (username, email, password_hash, created_at)
-    VALUES (username, email, MD5(password), curdate());
+    	VALUES (username, email, MD5(password), curdate());
 	
-    SET new_user_id = LAST_INSERT_ID();
+    	SET new_user_id = LAST_INSERT_ID();
     
-    INSERT INTO profiles (user_id, screen_name, profile_picture, bio)
-    VALUES (new_user_id, profile_name, profile_picture, bio);
+    	INSERT INTO profiles (user_id, screen_name, profile_picture, bio)
+    	VALUES (new_user_id, profile_name, profile_picture, bio);
 END;
 
 
@@ -134,19 +134,19 @@ SELECT * FROM tweets_likes;
 DELIMITER //
 CREATE PROCEDURE user_follow(
 	follower_user		VARCHAR(45),
-    followed_user		VARCHAR(45)
+    	followed_user		VARCHAR(45)
     )
     
 BEGIN 
 	DECLARE follower_user_id INT;
-    DECLARE followed_user_id INT;
+    	DECLARE followed_user_id INT;
     
     /* retrive the ids of the usernames and 
     store them in the declared variables */
     
     SELECT user_id INTO follower_user_id FROM users WHERE username = follower_user;
     SELECT user_id INTO followed_user_id FROM users WHERE username = followed_user;
-	
+
     INSERT INTO users_followers (user_id, follower_id)
     VALUES (followed_user_id, follower_user_id);
 	
